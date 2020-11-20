@@ -30,9 +30,9 @@ configFile.withReader {
     project.ext.config = new ConfigSlurper().parse prop
 }
 
-version = "${config.mc_version}-${config.mod_version}.${getBuildNumber()}"
+version = "${config.mc_version}-${config.mod_version}"
 group = "org.szernex.yabm"
-archivesBaseName = "YABM"
+archivesBaseName = "YABM-no_compression"
 
 
 minecraft {

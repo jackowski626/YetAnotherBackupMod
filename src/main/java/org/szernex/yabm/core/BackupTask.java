@@ -5,6 +5,8 @@ import net.minecraft.server.management.ServerConfigurationManager;
 import net.minecraft.world.MinecraftException;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.DimensionManager;
+import org.apache.commons.io.FileUtils;
+import org.lwjgl.Sys;
 import org.szernex.yabm.handler.ConfigHandler;
 import org.szernex.yabm.util.ChatHelper;
 import org.szernex.yabm.util.FileHelper;
@@ -23,6 +25,8 @@ public class BackupTask implements Runnable
 	private String filePrefix;
 	private String[] sourceList;
 	private int compressionLevel;
+	private boolean compressBackups;
+	//private File target_backup_folder;
 	private File lastBackupFile;
 	private ServerConfigurationManager serverConfigurationManager = MinecraftServer.getServer().getConfigurationManager();
 
@@ -31,12 +35,13 @@ public class BackupTask implements Runnable
 		return lastBackupFile;
 	}
 
-	public void init(String target_path, String file_prefix, String[] source_list, int compression_level)
+	public void init(String target_path, String file_prefix, String[] source_list, int compression_level, boolean compress_backups)
 	{
 		targetPath = target_path;
 		filePrefix = file_prefix;
 		sourceList = source_list;
 		compressionLevel = compression_level;
+		compressBackups = compress_backups;
 	}
 
 	public void run()
@@ -55,7 +60,7 @@ public class BackupTask implements Runnable
 		{
 			File target_dir = new File(targetPath).getCanonicalFile();
 			File world_dir = new File(new File(".").toURI().relativize(DimensionManager.getCurrentSaveRootDirectory().toURI()).getPath());
-			File target_file = new File(target_dir, FileHelper.getArchiveFileName(filePrefix, true) + ".zip");
+			File target_file = new File(target_dir, FileHelper.getArchiveFileName(filePrefix, true) + (compressBackups ? ".zip" : ""));
 
 			if (target_file.exists())
 			{
@@ -118,14 +123,22 @@ public class BackupTask implements Runnable
 
 			LogHelper.info("Archiving %d files...", source_files.size());
 
-			if (FileHelper.createZipArchive(target_file, source_files, compressionLevel))
-			{
-				LogHelper.info("Successfully created backup archive.");
-			}
-			else
-			{
-				LogHelper.warn("Failed to create backup archive.");
-				ChatHelper.sendServerChatMsg(ChatHelper.getLocalizedMsg("yabm.backup.error.archive_failed"));
+			if (compressBackups) {
+				if (FileHelper.createZipArchive(target_file, source_files, compressionLevel))
+				{
+					LogHelper.info("Successfully created backup archive.");
+				}
+				else
+				{
+					LogHelper.warn("Failed to create backup archive.");
+					ChatHelper.sendServerChatMsg(ChatHelper.getLocalizedMsg("yabm.backup.error.archive_failed"));
+				}
+			} else {
+				try {
+					FileUtils.copyDirectory(world_dir, target_file);
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
 			}
 
 

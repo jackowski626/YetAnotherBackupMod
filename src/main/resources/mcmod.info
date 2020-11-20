@@ -1,16 +1,16 @@
 [
 {
   "modid": "YABM",
-  "name": "Yet Another Backup Mod",
+  "name": "Yet Another Backup Mod (no compression option)",
   "description": "Yet another Minecraft Backup Mod",
   "version": "${mod_version}",
   "mcversion": "${mc_version}",
-  "url": "https://github.com/szernex/YetAnotherBackupMod",
+  "url": "https://github.com/jackowski626/YetAnotherBackupMod",
   "updateUrl": "",
   "authorList": [
-    "Szernex"
+    "Szernex", "jackowski626"
   ],
-  "credits": "",
+  "credits": "Szernex for the base mod",
   "logoFile": "",
   "screenshots": [
   ],

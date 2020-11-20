@@ -16,16 +16,17 @@ public class ConfigHandler
 
 	public static Map<String, Object> properties = new HashMap<String, Object>();
 	public static boolean backupEnabled = true;
-	public static String backupLocation = "../backups";
+	public static String backupLocation = "./backups";
 	public static String[] backupList = new String[]{"banned-ips.json", "banned-players.json", "ops.json", "options.json", "options.txt", "server.properties", "usercache.json", "whitelist.json", "config", "crash-reports", "mods", "resourcepacks"};
 	public static boolean backupFullSave = true;
 	public static String backupPrefix = "backup";
 	public static String backupSchedule = "12:00";
 	public static boolean persistentEnabled = true;
-	public static String persistentLocation = "../backups/persistent";
+	public static String persistentLocation = "./backups/persistent";
 	public static int maxPersistentCount = 7;
 	public static int maxBackupCount = 10;
 	public static int compressionLevel = 9;
+	public static boolean compressBackups = true;
 	public static boolean ftpEnabled = false;
 	public static String ftpLocation = "backups";
 	public static String ftpServer = "";
@@ -58,7 +59,7 @@ public class ConfigHandler
 		               backupLocation = configuration.getString(
 				               "backupLocation",
 				               cat_general,
-				               "../backups",
+				               "./backups",
 				               "The path where to store backups. Can be a path relative to the Minecraft installation root."
 		               ));
 		properties.put("backupList",
@@ -100,7 +101,7 @@ public class ConfigHandler
 		               persistentLocation = configuration.getString(
 				               "persistentLocation",
 				               cat_general,
-				               "../backups/persistent",
+				               "./backups/persistent",
 				               "The path where to store persistent backups. Can be a path relative to the Minecraft installation root."
 		               ));
 		properties.put("maxPersistentCount",
@@ -130,7 +131,13 @@ public class ConfigHandler
 				               9,
 				               "The zip compression level to use, 0 being no compression and 9 maximum compression."
 		               ));
-
+		properties.put("compressBackups",
+						compressBackups = configuration.getBoolean(
+								"compressBackups",
+								cat_general,
+								true,
+								"Compress backups. If set to false, the backup is just a folder. Useful for hosts who do not allow access to the command line. The persistent backups feature will be disabled too."
+						));
 		properties.put("ftpEnabled",
 		               ftpEnabled = configuration.getBoolean(
 				               "ftpEnabled",
@@ -176,7 +183,7 @@ public class ConfigHandler
 				               "The password to use when logging into the FTP server."
 		               ));
 
-		if (configuration.hasChanged())
+		//if (configuration.hasChanged())
 		{
 			configuration.save();
 		}

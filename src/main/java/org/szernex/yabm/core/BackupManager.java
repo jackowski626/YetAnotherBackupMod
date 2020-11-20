@@ -1,5 +1,7 @@
 package org.szernex.yabm.core;
 
+import org.apache.commons.io.FileUtils;
+import org.lwjgl.Sys;
 import org.szernex.yabm.handler.ConfigHandler;
 import org.szernex.yabm.util.ChatHelper;
 import org.szernex.yabm.util.FileHelper;
@@ -7,7 +9,9 @@ import org.szernex.yabm.util.LogHelper;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 public class BackupManager implements Runnable
 {
@@ -23,7 +27,7 @@ public class BackupManager implements Runnable
 
 	private boolean isPersistentBackup()
 	{
-		if (!ConfigHandler.persistentEnabled)
+		if (!ConfigHandler.persistentEnabled || !ConfigHandler.compressBackups)
 		{
 			return false;
 		}
@@ -79,25 +83,40 @@ public class BackupManager implements Runnable
 
 			File[] files = target_path.listFiles(new FileHelper.BackupFileFilter(archive_name));
 
-			if (files.length <= max_backups)
+			File[] all_files = new File(path).listFiles();
+			List<File> backup_files = new ArrayList<File>();
+
+			for (int i = 0; i < all_files.length; i ++) {
+				System.out.println(all_files[i].getName());
+				if (all_files[i].getName().startsWith(ConfigHandler.backupPrefix)) {
+					backup_files.add(all_files[i]);
+				}
+			}
+
+			//File[] backup_files_array = (File[]) backup_files.toArray();
+
+			File[] backup_files_array = backup_files.toArray(new File[backup_files.size()]);
+
+			if (backup_files_array.length <= max_backups)
 			{
 				return;
 			}
 
-			Arrays.sort(files);
+			Arrays.sort(backup_files_array);
 
-			files = Arrays.copyOfRange(files, 0, files.length - max_backups);
+			backup_files_array = Arrays.copyOfRange(backup_files_array, 0, backup_files_array.length - max_backups);
 			ChatHelper.sendServerChatMsg(ChatHelper.getLocalizedMsg("yabm.backup.general.backup_consolidation", files.length, (files.length > 1 ? "s" : "")));
 
-			for (File f : files)
+			for (File f : backup_files_array)
 			{
-				if (f.delete())
-				{
-					LogHelper.info("Deleted old backup %s", f);
-				}
-				else
-				{
-					LogHelper.warn("Could not delete old backup %s", f);
+				if (f.isFile()) {
+					if (f.delete()) {
+						LogHelper.info("Deleted old backup %s", f);
+					} else {
+						LogHelper.warn("Could not delete old backup %s", f);
+					}
+				} else if (f.isDirectory()) {
+					FileUtils.deleteDirectory(f);
 				}
 			}
 		}
@@ -135,7 +154,8 @@ public class BackupManager implements Runnable
 		backupTask.init((isPersistentBackup() ? ConfigHandler.persistentLocation : ConfigHandler.backupLocation),
 		                ConfigHandler.backupPrefix,
 		                ConfigHandler.backupList,
-		                ConfigHandler.compressionLevel
+		                ConfigHandler.compressionLevel,
+						ConfigHandler.compressBackups
 		);
 
 		startAndWaitForThread(backupTask);
