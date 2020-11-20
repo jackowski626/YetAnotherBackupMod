@@ -1,7 +1,7 @@
-#YetAnotherBackupMod (YABM)
+# YetAnotherBackupMod (YABM)
 A Minecraft Forge 1.7.10 Mod for automatically creating backups of your saves and other stuff.
 
-##Features
+## Features
 * automatic scheduled backups or
 * interval based backups
 * configurable via config file, mod configuration screen or in game via commands
@@ -10,10 +10,13 @@ A Minecraft Forge 1.7.10 Mod for automatically creating backups of your saves an
 * persistent backups for each day (excluded from automatic consolidation unless otherwise specified via config)
 * automatically upload backups to off-site storage via FTP
 
-##Usage
+## Specific to this fork
+* option to create decompressed backups, useful if you only have access to FTP on your hosting service
+
+## Usage
 After installation players (in SP)/OPs (on servers) can use the /yabm command to configure settings and manually start backups.
 
-##Examples
+## Examples
 * /yabm get backupSchedule - returns the schedule times for when to automatically create backups. Currently global for all saves.
 * /yabm set backupSchedule 6:00 12:00 18:00 0:00 - sets the times for when to automatically create backups to the given times.
 * /yabm set backupSchedule 180 - sets it to make backups every 3 hours.
